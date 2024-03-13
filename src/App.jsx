@@ -5,14 +5,26 @@ import { Badge } from "@/components/ui/badge";
 
 export default function App() {
   const [quotes, setQuotes] = useState([]);
-  const [tags, setTags] = useState(["tag1", "tag2", "tag3", "tag4"]);
-  const [selectdTag, setSelectedTag] = useState(null);
+  const [tags, setTags] = useState([]);
+  const [selectedTag, setSelectedTag] = useState(null);
 
   async function getQuotes() {
     const request = await fetch("/quotes.json");
     const podatki = await request.json();
 
     setQuotes(podatki);
+  }
+
+  function isQuoteSelected(quote) {
+    if (!selectedTag) {
+      return true;
+    }
+    return quote.tags.includes(selectedTag);
+    quote.tags.forEach((tag) => {
+      if (tag == selectedTag) {
+        return true;
+      }
+    });
   }
 
   useEffect(() => {
@@ -33,12 +45,12 @@ export default function App() {
 
     quotes.forEach((e) => {
       quote_tags = e["tags"];
-      // 1. FOR LOOP ZA VSE TAGE OD TISTEGA QUOTA (e["tags"])
+      // 1. for loop za vse tage is tistega quota (e["tags"])
       // "tags":["Famous Quotes", "Neki n", "a", "b"]
       quote_tags.forEach((t) => {
         //console.log(t);
         if (tags.includes(t)) {
-          console.log("ze vsebuje " + t);
+          //console.log("ze vsebuje " + t);
         } else {
           tags.push(t);
         }
@@ -60,13 +72,17 @@ export default function App() {
       <div className="p-4">
         <div>
           {tags.map((tag) => (
-            <Badge key={tag}>{tag}</Badge>
+            <Badge key={tag} onClick={() => setSelectedTag(tag)}>
+              {tag}
+            </Badge>
           ))}
         </div>
-        <div className="grid grid-cols-3 gap-4 text-center">
-          {quotes.map((quote) => (
-            <Quote quote={quote}></Quote>
-          ))}
+        <div className="grid grid-cols-3 gap-2 ">
+          {quotes
+            .filter((q) => isQuoteSelected(q))
+            .map((quote) => (
+              <Quote quote={quote}></Quote>
+            ))}
         </div>
       </div>
     </>
